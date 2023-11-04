@@ -1,0 +1,106 @@
+la fonction read() :
+
+		(notre folder a lire)(pour stoker les byte quil la lue)(nombre de bytes a lire)
+size_t read(int fildses, void *buf, size_t nbyte);
+
+exemple:
+
+file :   |Hello|_World
+
+buf   : Hello
+
+nbyte : 5
+
+return 5;
+
+si on l'appel sur le meme file descriptor elle va pas oublie ce qu'elle a lue auparavant comme un checkpoint en gros donc
+si je reprend lexemple d'avant :
+
+file : Hello|_World|
+
+buf : _World
+
+nbyte : 6
+
+return 6;
+
+elle reprend de ou elle cest arreter, donc si on fait une boucle elle va lire tout le file par nbyte quon lui a attribue.
+
+second exemple en cas de zone vide :
+
+file : Hello_World.
+
+buf : Hello_World.
+
+nbyte : 14
+
+return 12;
+
+la fonction read va lire ce quel peut et renvoyer le nombre de byte quelle peut lire
+(dans le cas ou elle a zero checkpoint) 
+si elle a finit de lire tout elle va renvoyer 0(car plus rien a read).
+
+UTTILISER READ POUR GET NEXT LINE :
+
+char *get_next_line(int fd);
+
+on va essayer en gros de stocker ce qui a dans le buffer dans une variable (list chainer ou chaine de caractere)
+
+exemple :
+
+file : Hello_World.$
+		Salut
+								(on regarde si on est arrive au bout d'une ligne)
+buf : Hello		---------->		stockbuf : Hello
+											(non du coup on rappel read)
+
+nbyte : 5
+
+test 2;
+
+file : Hello_World.$
+		Salut3
+								(on regarde si on est arrive au bout d'une ligne)
+buf : _Worl		---------->		stockbuf : _Worl
+											(non du coup on rappel read)
+
+nbyte : 5
+
+test 3;
+
+file : Hello_World.$
+		Salut
+								(on regarde si on est arrive au bout d'une ligne)
+buf : 	d.$Sal	---------->		stockbuf : d.$Sal
+										|	(apres nettoyage: Sal)		
+										|				(oui ya un retourne a la ligne)
+										|
+nbyte : 5								|	creation dune variable line pour extraire 
+										|		nos caractere et le retour a la ligne a la fin
+
+
+										line :Hello_World.$	(dans le stockbuf faire un nettoyage pour envoyer 
+															que ce qui nous interraise)
+get_next_line()RETURN(line)
+
+si jappele get next line plusieurs fois sur le meme fichier ou jusqua que jai lue tout le fichier sa me renverra que 1 ligne a
+la fois.
+donc imaginons cest ce que je fait , si jappele get next line avec les meme fonctionque jai declarer sa va rester au checkpoint.
+mais le probleme cest que on la nettoyer donc reset (stockbuf) et cest la qui va nous servir la notion de variables tatic mouhahaha
+qui veut dire en gros elle garde sa valeur entre deux appel d'une fonction en gros sa l'enregistre avant que je clean tout.
+
+exemple de test apres avoir trouve un saut a la ligne;
+
+file : Hello_World.$
+		Salut
+									|STATIC|
+buf : 	d.$Sal	---------->		stockbuf : Sal 
+										
+nbyte : 5
+
+etc
+
+donc la on voit que sa a enregistrer (garder de coter)ce qui est dans le stockbuf si je regarde le test 3 de en haut on voit que jai prit ce qui
+minterraisser dans line et jai entre guillement enregister Sal dans le stockbuf.
+
+
