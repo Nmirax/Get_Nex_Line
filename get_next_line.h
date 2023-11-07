@@ -14,15 +14,19 @@ struct s_list *next;
 } 			t_list;
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 5
+#  define BUFFER_SIZE 42
 # endif
 
 char	*get_next_line(int fd);
 t_list *ft_lst_get_last(t_list *stockbuf);
 int found_newline(t_list *stockbuf);
 void add_to_stockbuf(t_list **stockbuf,char *buf, int readed);
-void	read_and_stockbuf(int fd, t_list **stockbuf, int *readed_ptr);
+void    read_and_stockbuf(int fd, t_list **stockbuf, int *readed_ptr);
 t_list *ft_lst_get_last(t_list *stockbuf);
-
+void	generate_line(char **line, t_list *stockbuf);
+void	clean_stockbuf(t_list **stash);
+size_t ft_strlen(const char *s);
+void free_stockbuf(t_list *stockbuf);
+void    extract_line(t_list **stockbuf, char **line);
 
 #endif
