@@ -6,100 +6,66 @@
 /*   By: abakhaev <abakhaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 11:49:46 by abakhaev          #+#    #+#             */
-/*   Updated: 2023/11/04 15:19:52 by abakhaev         ###   ########.fr       */
+/*   Updated: 2023/11/07 12:24:35 by abakhaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(char *s)
-{
-	size_t	i;
+//search new line in the buf
 
+int found_newline(t_list *stockbuf)
+{
+	int	i;
+	t_list *current;
+
+	if(stockbuf == NULL)
+		return(0);
+current = ft_lst_get_last(stockbuf);
 	i = 0;
-	if (!s)
-		return (0);
-	while (s[i] != '\0')
+	while (current->content[i])
+	{
+		if (current->content[i] == '\n')
+			return (1);
 		i++;
-	return (i);
+	}
+	return (0);
 }
 
-char	*ft_strjoin(char *left_str, char *buff)
-{
-	size_t	i;
-	size_t	j;
-	char	*str;
+	/*REturns  pointer to the last in my stockbuf*/
 
-	if (!left_str)
+	t_list *ft_lst_get_last(t_list *stockbuf)
 	{
-		left_str = (char *)malloc(1 * sizeof(char));
-		left_str[0] = '\0';
+		t_list *current;
+		
+		current = stockbuf;
+		while(current && current ->next)
+				current = current ->next;
+		return(current);
 	}
-	if (!left_str || !buff)
-		return (NULL);
-	str = malloc(sizeof(char) * ((ft_strlen(left_str) + ft_strlen(buff)) + 1));
-	if (str == NULL)
-		return (NULL);
-	i = -1;
-	j = 0;
-	if (left_str)
-		while (left_str[++i] != '\0')
-			str[i] = left_str[i];
-	while (buff[j] != '\0')
-		str[i++] = buff[j++];
-	str[ft_strlen(left_str) + ft_strlen(buff)] = '\0';
-	free(left_str);
-	return (str);
-}
 
-char *cut_line(char **stockbuf)
-{
-	int i; 
-	i = 0;
-	int len; 
-	len = 0;
-	char *line;
-	char *tmp;
-
-	while ((*stockbuf)[i] != '\n' && (*stockbuf)[i] != '\0')
-		i++;
-	line = (char *)malloc((i + 1) * sizeof(char));
-	int j;
-	j = 0;
-	while (j < i)
+	
+	void	generate_line(char **line, t_list *stockbuf)
 	{
-		line[j] = (*stockbuf)[j];
-		j++;
-	}
-	line[i] = '\0';
-	if ((*stockbuf)[i] == '\n')
-		i++;
-	while ((*stockbuf)[i + len] != '\0')
-		len++;
-	tmp = (char *)malloc((len + 1) * sizeof(char));
-	j = 0;
-	while (j < len)
-	{
-		tmp[j] = (*stockbuf)[i + j];
-		j++;
-	}
-	tmp[len] = '\0';
-	free(*stockbuf);
-	*stockbuf = tmp;
-	return (line);
-}
+		int i;
+		int len;
 
+		len = 0;
+		while (stockbuf)
+		{	
+			i = 0;
+			while(stockbuf->content[i])
+			{
+				if(stockbuf->content[i] == '\n')
+				{
+					len ++;
+					break;
+				}
+				len++;
+				i++;
+			}
+			stockbuf = stockbuf->next;
+		}
+		*line = malloc(sizeof(char) * (len + 1)
 
-char	*ft_strchr(const char *s, int c)
-{
-	while (*s)
-	{
-		if (*s == (char)c)
-			return ((char *)s);
-		s++;
 	}
-	if (*s == (char)c)
-		return ((char *)s);
-	else
-		return (NULL);
-}
