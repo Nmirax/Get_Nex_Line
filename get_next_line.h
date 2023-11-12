@@ -1,32 +1,31 @@
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
+# include <stdio.h> // REMOVE FOR PUSH
+# include <stdlib.h>
 
-typedef struct s_list
-{
-	void 	*content;
-struct s_list *next;
-} 			t_list;
+# include <sys/types.h>
+# include <sys/uio.h>
+# include <unistd.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 42
+#  define BUFFER_SIZE 5
 # endif
 
-char	*get_next_line(int fd);
-t_list *ft_lst_get_last(t_list *stockbuf);
-int found_newline(t_list *stockbuf);
-void add_to_stockbuf(t_list **stockbuf,char *buf, int readed);
-void    read_and_stockbuf(int fd, t_list **stockbuf, int *readed_ptr);
-t_list *ft_lst_get_last(t_list *stockbuf);
-void	generate_line(char **line, t_list *stockbuf);
-void	clean_stockbuf(t_list **stash);
-size_t ft_strlen(const char *s);
-void free_stockbuf(t_list *stockbuf);
-void    extract_line(t_list **stockbuf, char **line);
+typedef struct	s_list
+{
+	char			*content;
+	struct s_list	*next;
+}				t_list;
 
+char	*get_next_line(int fd);
+int 	found_newline(t_list *stockbuf);
+t_list	*ft_lst_get_last(t_list *stockbuf);
+void	read_and_stockbuf(int fd, t_list **stockbuf);
+void	add_to_stockbuf(t_list **stockbuf, char *buf, int readed);
+void	extract_line(t_list *stockbuf, char **line);
+void	generate_line(char **line, t_list *stockbuf);
+void	clean_stockbuf(t_list **stockbuf);
+int 	ft_strlen(const char *str);
+void	free_stockbuf(t_list *stockbuf);
 #endif

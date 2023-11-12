@@ -5,84 +5,97 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abakhaev <abakhaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/04 11:49:46 by abakhaev          #+#    #+#             */
-/*   Updated: 2023/11/07 14:44:23 by abakhaev         ###   ########.fr       */
+/*   Created: 2023/11/12 17:36:46 by abakhaev          #+#    #+#             */
+/*   Updated: 2023/11/12 18:22:59 by abakhaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+
 
 #include "get_next_line.h"
 
 /* Looks for a newline character in the given linked list. */
-int found_newline(t_list *stockbuf)
-{
-    t_list *current = stockbuf;
 
-    while (current)
-    {
-        char *content = (char *)current->content;
-        while (*content)
-        {
-            if (*content == '\n')
-                return (1);
-            content++;
-        }
-        current = current->next;
-    }
-    return (0);
+int	found_newline(t_list *stockbuf)
+{
+	int		i;
+	t_list	*current;
+
+	if (stockbuf == NULL)
+		return (0);
+	current = ft_lst_get_last(stockbuf);
+	i = 0;
+	while (current->content[i])
+	{
+		if (current->content[i] == '\n')
+			return (1);
+		i++;
+	}
+	return (0);
 }
 
-/* Returns a pointer to the last node in our stash */
-t_list *ft_lst_get_last(t_list *stockbuf)
-{
-    t_list *last = stockbuf;
-    while (last && last->next)
-    {
-        last = last->next;
-    }
-    return (last);
-}
+/* Returns a pointer to the last node in our stockbuf */
 
+t_list	*ft_lst_get_last(t_list *stockbuf)
+{
+	t_list	*current;
+
+	current = stockbuf;
+	while (current && current->next)
+		current = current->next;
+	return (current);
+}
 
 /* Calculates the number of chars in the current line, including the trailing
  * \n if there is one, and allocates memory accordingly. */
-void generate_line(char **line, t_list *stockbuf)
-{
-    int len = 0;
-    t_list *current = stockbuf;
 
-    while (current)
-    {
-        char *content = (char *)current->content;
-        while (*content)
-        {
-            if (*content == '\n')
-                break;
-            len++;
-            content++;
-        }
-        current = current->next;
-    }
-    *line = malloc(sizeof(char) * (len + 1));
+void	generate_line(char **line, t_list *stockbuf)
+{
+	int	i;
+	int	len;
+
+	len = 0;
+	while (stockbuf)
+	{
+		i = 0;
+		while (stockbuf->content[i])
+		{
+			if (stockbuf->content[i] == '\n')
+			{
+				len++;
+				break ;
+			}
+			len++;
+			i++;
+		}
+		stockbuf = stockbuf->next;
+	}
+	*line = malloc(sizeof(char) * (len + 1));
 }
 
-size_t ft_strlen(const char *s)
+/* Free the entire stockbuf. */
+
+void	free_stockbuf(t_list *stockbuf)
 {
-    size_t len = 0;
-    while (s[len] != '\0')
-    {
-        len++;
-    }
-    return (len);
+	t_list	*current;
+	t_list	*next;
+
+	current = stockbuf;
+	while (current)
+	{
+		free(current->content);
+		next = current->next;
+		free(current);
+		current = next;
+	}
 }
-/* Frees the entire stash. */
-void free_stockbuf(t_list *stockbuf)
+
+int	ft_strlen(const char *str)
 {
-    t_list *current = stockbuf;
-    while (current)
-    {
-        free(current->content);
-        t_list *next = current->next;
-        free(current);
-        current = next;
-    }
+	int	len;
+
+	len = 0;
+	while (*(str++))
+		len++;
+	return (len);
 }

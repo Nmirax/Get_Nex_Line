@@ -5,166 +5,156 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abakhaev <abakhaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/04 11:47:29 by abakhaev          #+#    #+#             */
-/*   Updated: 2023/11/07 14:59:24 by abakhaev         ###   ########.fr       */
+/*   Created: 2023/11/12 17:36:52 by abakhaev          #+#    #+#             */
+/*   Updated: 2023/11/12 18:25:42 by abakhaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
 
+
+#include "get_next_line.h"
 
 char	*get_next_line(int fd)
 {
 	static t_list	*stockbuf = NULL;
 	char			*line;
-	int             readed;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) < 0)
 		return (NULL);
 	line = NULL;
 	// 1. read from fd and add to linked list
-	read_and_stockbuf(fd, &stockbuf, &readed);
+	read_and_stockbuf(fd, &stockbuf);
 	if (stockbuf == NULL)
 		return (NULL);
 	// 2. extract from stash to line
-	extract_line(&stockbuf, &line);
-	// 3. clean up stash
+	extract_line(stockbuf, &line);
+	// 3. clean up stockbuf)
 	clean_stockbuf(&stockbuf);
 	if (line[0] == '\0')
 	{
+		free_stockbuf(stockbuf);
+		stockbuf = NULL;
 		free(line);
 		return (NULL);
 	}
 	return (line);
 }
 
-void    read_and_stockbuf(int fd, t_list **stockbuf, int *readed_ptr)
+/* Uses read() to add characters to the stockbuf */
+
+void	read_and_stockbuf(int fd, t_list **stockbuf)
 {
 	char	*buf;
+	int		readed;
 
-	*readed_ptr = 1;
-	while (!found_newline(*stockbuf) && *readed_ptr != 0)
+	readed = 1;
+	while (!found_newline(*stockbuf) && readed != 0)
 	{
 		buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		if (buf == NULL)
 			return ;
-		*readed_ptr = (int)read(fd, buf, BUFFER_SIZE);
-		if ((*stockbuf == NULL && *readed_ptr == 0) || *readed_ptr == -1)
+		readed = (int)read(fd, buf, BUFFER_SIZE);
+		if ((*stockbuf == NULL && readed == 0) || readed == -1)
 		{
 			free(buf);
 			return ;
 		}
-		buf[*readed_ptr] = '\0';
-		add_to_stockbuf(stockbuf, buf, *readed_ptr);
+		buf[readed] = '\0';
+		add_to_stockbuf(stockbuf, buf, readed);
 		free(buf);
 	}
 }
 
+/* Adds the content of our buffer to the end of our stash */
 
-void add_to_stockbuf(t_list **stockbuf, char *buf, int readed)
+void	add_to_stockbuf(t_list **stockbuf, char *buf, int readed)
 {
-	int i;
-	t_list *last;
-	t_list *new;
-	
+	int		i;
+	t_list	*last;
+	t_list	*new;
+
 	new = malloc(sizeof(t_list));
-	if (!new)
-		return;
+	if (new == NULL)
+		return ;
 	new->next = NULL;
 	new->content = malloc(sizeof(char) * (readed + 1));
-	if (!new->content)
-	{
-		free(new);
-		return;
-	}
+	if (new->content == NULL)
+		return ;
 	i = 0;
 	while (buf[i] && i < readed)
 	{
-		((char *)new->content)[i] = buf[i];
+		new->content[i] = buf[i];
 		i++;
 	}
-	((char *)new->content)[i] = '\0';
+	new->content[i] = '\0';
 	if (*stockbuf == NULL)
 	{
 		*stockbuf = new;
-		return;
+		return ;
 	}
 	last = ft_lst_get_last(*stockbuf);
 	last->next = new;
 }
 
-void    extract_line(t_list **stockbuf, char **line)
+/* Extracts all characters from our stash and stores them in out line.
+ * stopping after the first \n it encounters */
+
+void	extract_line(t_list *stockbuf, char **line)
 {
-	int i;
-	int j;
-	t_list *current;
+	int	i;
+	int	j;
 
-	current = *stockbuf;
-
-	if (current == NULL)
-		return;
+	if (stockbuf == NULL)
+		return ;
+	generate_line(line, stockbuf);
+	if (*line == NULL)
+		return ;
 	j = 0;
-	while (current)
+	while (stockbuf)
 	{
 		i = 0;
-		while (((char *)(current->content))[i]) 
+		while (stockbuf->content[i])
 		{
-			if (((char *)(current->content))[i] == '\n')
+			if (stockbuf->content[i] == '\n')
 			{
-				(*line)[j++] = ((char *)(current->content))[i++];
-				break;
+				(*line)[j++] = stockbuf->content[i];
+				break ;
 			}
-			(*line)[j++] = ((char *)(current->content))[i++];
+			(*line)[j++] = stockbuf->content[i++];
 		}
-		current = current->next;
+		stockbuf = stockbuf->next;
 	}
-
 	(*line)[j] = '\0';
-	clean_stockbuf(stockbuf);
 }
 
-void clean_stockbuf(t_list **stockbuf)
+/* After extracting the line that was read, we don't need those characters
+ * anymore. This function clears the stockbuf so only the characters that have
+ * not been returned at the end of get_next_line remain in our static stockbuf. */
+
+void	clean_stockbuf(t_list **stockbuf)
 {
-	t_list *last;
-	t_list *clean_up;
-	int i;
-	int j;
+	t_list	*last;
+	t_list	*clean;
+	int		i;
+	int		j;
 
-	if (*stockbuf == NULL)
-		return;
-
-	clean_up = malloc(sizeof(t_list));
-	if (clean_up == NULL)
-		return;
-
-	clean_up->next = NULL;
+	clean = malloc(sizeof(t_list));
+	if (stockbuf == NULL || clean == NULL)
+		return ;
+	clean->next = NULL;
 	last = ft_lst_get_last(*stockbuf);
 	i = 0;
-	while (last->content && ((char *)(last->content))[i] && ((char *)(last->content))[i] == '\n')
+	while (last->content[i] && last->content[i] != '\n')
 		i++;
-
-	if (last->content && ((char *)(last->content))[i] != '\0')
-	{
-		clean_up->content = malloc(sizeof(char) * (ft_strlen((char *)(last->content)) - i + 1));
-		if (clean_up->content == NULL)
-		{
-			free(clean_up);
-			return;
-		}
-
-		j = 0;
-		while (((char *)(last->content))[i])
-			((char *)(clean_up->content))[j++] = ((char *)(last->content))[i++];
-
-		((char *)(clean_up->content))[j] = '\0';
-
-		free_stockbuf(*stockbuf);
-		*stockbuf = clean_up;
-	}
-	else
-	{
-		free_stockbuf(*stockbuf);
-		free(clean_up);
-		*stockbuf = NULL;
-	}
+	if (last->content && last->content[i] == '\n')
+		i++;
+	clean->content = malloc(sizeof(char) * ((ft_strlen(last->content) - i) + 1));
+	if (clean->content == NULL)
+		return ;
+	j = 0;
+	while (last->content[i])
+		clean->content[j++] = last->content[i++];
+	clean->content[j] = '\0';
+	free_stockbuf(*stockbuf);
+	*stockbuf = clean;
 }
