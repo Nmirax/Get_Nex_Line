@@ -9,7 +9,7 @@
 # include <unistd.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 5
+#  define BUFFER_SIZE 40
 # endif
 
 typedef struct	s_list
@@ -28,4 +28,5 @@ void	generate_line(char **line, t_list *stockbuf);
 void	clean_stockbuf(t_list **stockbuf);
 int 	ft_strlen(const char *str);
 void	free_stockbuf(t_list *stockbuf);
+void print_stockbuf(t_list *stockbuf);
 #endif
