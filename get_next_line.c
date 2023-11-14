@@ -6,7 +6,7 @@
 /*   By: abakhaev <abakhaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 11:58:44 by abakhaev          #+#    #+#             */
-/*   Updated: 2023/11/14 12:44:49 by abakhaev         ###   ########.fr       */
+/*   Updated: 2023/11/14 17:17:41 by abakhaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,7 @@ int	read_and_stockbuf(int fd,	t_list **stockbuf)
 	{
 		buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		if (buf == NULL)
-		{
 			return (0);
-		}
 		readed = (int)read(fd, buf, BUFFER_SIZE);
 		if (readed == -1)
 		{
@@ -66,11 +64,10 @@ int	read_and_stockbuf(int fd,	t_list **stockbuf)
 		}
 		buf[readed] = '\0';
 		add_to_stockbuf(stockbuf, buf, readed);
-	free(buf);
+		free(buf);
 	}
-    return (1);
+	return (1);
 }
-
 
 void	add_to_stockbuf(t_list **stockbuf, char *buf, int readed)
 {
@@ -118,8 +115,7 @@ void	extract_line(t_list *stockbuf, char **line)
 		while (stockbuf->content[i])
 		{
 			if (stockbuf->content[i] == '\n')
-			{
-				
+			{	
 				(*line)[j++] = stockbuf->content[i];
 				break ;
 			}
@@ -147,7 +143,8 @@ void	clean_stockbuf(t_list **stockbuf)
 		i++;
 	if (last->content && last->content[i] == '\n')
 		i++;
-	clean->content = malloc(sizeof(char) * ((ft_strlen(last->content) - i) + 1));
+	j = ft_strlen(last->content);
+	clean->content = malloc(sizeof(char) * (j - i) + 1);
 	if (clean->content == NULL)
 		return ;
 	j = 0;
