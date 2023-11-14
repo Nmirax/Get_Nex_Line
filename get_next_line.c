@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abakhaev <abakhaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/12 17:36:52 by abakhaev          #+#    #+#             */
-/*   Updated: 2023/11/13 14:12:25 by abakhaev         ###   ########.fr       */
+/*   Created: 2023/11/14 11:58:44 by abakhaev          #+#    #+#             */
+/*   Updated: 2023/11/14 12:44:49 by abakhaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,15 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	line = NULL;
-	// 1. read from fd and add to linked list
-	read_and_stockbuf(fd, &stockbuf);
+	if (!read_and_stockbuf(fd, &stockbuf))
+	{
+		free_stockbuf(stockbuf);
+		stockbuf = NULL;
+		return (NULL);
+	}
 	if (stockbuf == NULL)
 		return (NULL);
-	// 2. extract from stash to line
 	extract_line(stockbuf, &line);
-	// 3. clean up stockbuf)
 	clean_stockbuf(&stockbuf);
 	if (line[0] == '\0')
 	{
@@ -38,47 +40,37 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-/* Uses read() to add characters to the stockbuf */
-
-void read_and_stockbuf(int fd, t_list **stockbuf)
+int	read_and_stockbuf(int fd,	t_list **stockbuf)
 {
-    char *buf;
-    int readed;
+	char	*buf;
+	int		readed;	
 
-    readed = 1;
-    while (!found_newline(*stockbuf) && readed != 0)
-    {
-        buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-        if (buf == NULL)
-        {
-            // Gestion de l'erreur d'allocation de mémoire pour buf
-            return;
-        }
-
-        readed = (int)read(fd, buf, BUFFER_SIZE);
-        if (readed == -1)
-        {
-            
-            free(buf);
-            break;  // Sortir de la boucle en cas d'erreur de lecture
-        }
-
-        if (readed == 0)
-        {
-            // Vous avez atteint la fin du fichier
-            free(buf);
-            break;  // Sortir de la boucle
-        }
-
-        buf[readed] = '\0';
-        add_to_stockbuf(stockbuf, buf, readed);
-        free(buf);
-
-    }
-
+	readed = 1;
+	while (!found_newline(*stockbuf) && readed != 0)
+	{
+		buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+		if (buf == NULL)
+		{
+			return (0);
+		}
+		readed = (int)read(fd, buf, BUFFER_SIZE);
+		if (readed == -1)
+		{
+			free(buf);
+			return (0);
+		}
+		if (readed == 0)
+		{
+			free(buf);
+			break ;
+		}
+		buf[readed] = '\0';
+		add_to_stockbuf(stockbuf, buf, readed);
+	free(buf);
+	}
+    return (1);
 }
 
-/* Adds the content of our buffer to the end of our stash */
 
 void	add_to_stockbuf(t_list **stockbuf, char *buf, int readed)
 {
@@ -109,9 +101,6 @@ void	add_to_stockbuf(t_list **stockbuf, char *buf, int readed)
 	last->next = new;
 }
 
-/* Extracts all characters from our stash and stores them in out line.
- * stopping after the first \n it encounters */
-
 void	extract_line(t_list *stockbuf, char **line)
 {
 	int	i;
@@ -141,10 +130,6 @@ void	extract_line(t_list *stockbuf, char **line)
 	(*line)[j] = '\0';
 }
 
-/* After extracting the line that was read, we don't need those characters
- * anymore. This function clears the stockbuf so only the characters that have
- * not been returned at the end of get_next_line remain in our static stockbuf. */
-
 void	clean_stockbuf(t_list **stockbuf)
 {
 	t_list	*last;
@@ -172,4 +157,3 @@ void	clean_stockbuf(t_list **stockbuf)
 	free_stockbuf(*stockbuf);
 	*stockbuf = clean;
 }
-
