@@ -6,14 +6,14 @@
 /*   By: abakhaev <abakhaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 11:59:14 by abakhaev          #+#    #+#             */
-/*   Updated: 2023/11/14 17:04:28 by abakhaev         ###   ########.fr       */
+/*   Updated: 2023/11/29 16:27:42 by abakhaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-# include <stdio.h> // REMOVE FOR PUSH
+# include <stdio.h>
 # include <stdlib.h>
 
 # include <sys/types.h>

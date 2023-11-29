@@ -6,13 +6,11 @@
 /*   By: abakhaev <abakhaev@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 11:59:42 by abakhaev          #+#    #+#             */
-/*   Updated: 2023/11/14 17:17:51 by abakhaev         ###   ########.fr       */
+/*   Updated: 2023/11/29 16:27:26 by abakhaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-/* Looks for a newline character in the given linked list. */
 
 int	found_newline(t_list *stockbuf)
 {
@@ -32,8 +30,6 @@ int	found_newline(t_list *stockbuf)
 	return (0);
 }
 
-/* Returns a pointer to the last node in our stockbuf */
-
 t_list	*ft_lst_get_last(t_list *stockbuf)
 {
 	t_list	*current;
@@ -43,9 +39,6 @@ t_list	*ft_lst_get_last(t_list *stockbuf)
 		current = current->next;
 	return (current);
 }
-
-/* Calculates the number of chars in the current line, including the trailing
- * \n if there is one, and allocates memory accordingly. */
 
 void	generate_line(char **line, t_list *stockbuf)
 {
@@ -70,8 +63,6 @@ void	generate_line(char **line, t_list *stockbuf)
 	}
 	*line = malloc(sizeof(char) * (len + 1));
 }
-
-/* Free the entire stockbuf. */
 
 void	free_stockbuf(t_list *stockbuf)
 {
